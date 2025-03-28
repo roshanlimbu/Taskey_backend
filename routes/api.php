@@ -1,28 +1,17 @@
 <?php
-use Laravel\Socialite\Facades\Socialite;
-use App\Models\User;
+
+use App\Http\Controllers\Auth\GithubAuthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
-Route::get('/auth/github', function () {
-    return Socialite::driver('github')->redirect();
+Route::middleware('auth')->get('/user', function (Request $request) {
+    return response()->json(
+        [
+            'user' => Auth::user(),
+            'authenticated' => Auth::check(),
+        ]
+    );
 });
-
-Route::get('/auth/github/callback', function () {
-    $githubUser = Socialite::driver('github')->user();
-
-    $user = User::where('github_id', $githubUser->id)->first();
-
-    if (!$user) {
-        $user = User::create([
-            'name' => $githubUser->name ?? $githubUser->nickname,
-            'email' => $githubUser->email,
-            'github_id' => $githubUser->id,
-            'github_token' => $githubUser->token,
-        ]);
-    }
-
-    Auth::login($user);
-
-    return redirect('/dashboard');
-});
+Route::get('/auth/github', [GithubAuthController::class, 'redirectToGithub']);
+Route::get('/auth/github/callback', [GithubAuthController::class, 'handleGithubCallback']);
