@@ -27,8 +27,9 @@ class GithubAuthController extends Controller
                 'github_refresh_token' => $githubUser->refreshToken,
             ]
         );
+        $token = $user->createToken('github-auth')->plainTextToken;
 
         Auth::login($user);
-        return redirect()->away('http://localhost:4200/dashboard?token=' . $user->github_token);
+        return redirect()->away("http://localhost:4200/dashboard" . "?token=" . $user->github_token);
     }
 }
