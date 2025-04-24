@@ -5,13 +5,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
-Route::middleware('auth')->get('/user', function (Request $request) {
-    return response()->json(
-        [
-            'user' => Auth::user(),
-            'authenticated' => Auth::check(),
-        ]
-    );
+// Public routes
+Route::prefix('auth/github')->group(function () {
+    Route::get('authorize', [GithubAuthController::class, 'redirectToGithub']);
+    Route::get('callback', [GithubAuthController::class, 'handleGithubCallback']);
 });
-Route::get('/auth/github', [GithubAuthController::class, 'redirectToGithub']);
-Route::get('/auth/github/callback', [GithubAuthController::class, 'handleGithubCallback']);
+
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return response()->json([
+            'user' => $request->user(),
+            'authenticated' => true
+        ]);
+    });
+
+    Route::get('/auth/github/user', [GithubAuthController::class, 'getAuthenticatedUser']);
+});
