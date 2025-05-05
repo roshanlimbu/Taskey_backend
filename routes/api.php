@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\GithubAuthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ProjectController;
 
 // Public routes
 Route::prefix('auth/github')->group(function () {
@@ -21,4 +22,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::get('/auth/github/user', [GithubAuthController::class, 'getAuthenticatedUser']);
+    Route::post('/projects', [ProjectController::class, 'createRepo']);
 });
