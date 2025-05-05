@@ -136,7 +136,13 @@ class GithubAuthController extends Controller
 
             return response()->json([
                 'token' => $token,
-                'user' => $user,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'github_id' => $user->github_id,
+                    'is_super_admin' => $user->is_super_admin ?? false,
+                ],
                 'github_user' => $githubUser
             ]);
         } catch (\Exception $e) {
