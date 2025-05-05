@@ -15,21 +15,51 @@ class ProjectController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
             'private' => 'boolean',
+            'org' => 'required|string',
         ]);
 
         $name = $request->input('name');
         $description = $request->input('description', '');
         $private = $request->input('private', true);
+        $org = $request->input('org');
 
-        // Get the authenticated user's GitHub token
-        $user = Auth::user();
-        $token = $user->github_token;
+        // GitHub App credentials
+        $appId = config('services.github.app_id');
+        $privateKeyPath = config('services.github.private_key_path', storage_path('app/github-app.pem'));
+        $privateKey = file_get_contents($privateKeyPath);
+
+        // Generate JWT
+        $payload = [
+            'iat' => time(),
+            'exp' => time() + (10 * 60),
+            'iss' => $appId,
+        ];
+        $jwt = \Firebase\JWT\JWT::encode($payload, $privateKey, 'RS256');
 
         $client = new Client();
         try {
-            $response = $client->post('https://api.github.com/user/repos', [
+            // Get installation ID for the org
+            $response = $client->get("https://api.github.com/orgs/{$org}/installation", [
                 'headers' => [
-                    'Authorization' => "Bearer $token",
+                    'Authorization' => "Bearer $jwt",
+                    'Accept' => 'application/vnd.github+json',
+                ],
+            ]);
+            $installationId = json_decode($response->getBody(), true)['id'];
+
+            // Create installation access token
+            $response = $client->post("https://api.github.com/app/installations/{$installationId}/access_tokens", [
+                'headers' => [
+                    'Authorization' => "Bearer $jwt",
+                    'Accept' => 'application/vnd.github+json',
+                ],
+            ]);
+            $installationToken = json_decode($response->getBody(), true)['token'];
+
+            // Create the repo in the org
+            $response = $client->post("https://api.github.com/orgs/{$org}/repos", [
+                'headers' => [
+                    'Authorization' => "Bearer $installationToken",
                     'Accept' => 'application/vnd.github+json',
                 ],
                 'json' => [
@@ -46,7 +76,7 @@ class ProjectController extends Controller
                 return response()->json(['error' => 'Failed to create repository.'], 500);
             }
         } catch (\Exception $e) {
-            Log::error('GitHub repo creation failed', ['error' => $e->getMessage()]);
+            Log::error('GitHub org repo creation failed', ['error' => $e->getMessage()]);
             return response()->json(['error' => 'Exception: ' . $e->getMessage()], 500);
         }
     }
