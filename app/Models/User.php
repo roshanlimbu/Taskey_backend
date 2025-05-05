@@ -25,6 +25,7 @@ class User extends Authenticatable
         'github_id',
         'github_token',
         'github_refresh_token',
+        'is_super_admin',
     ];
 
     /**
