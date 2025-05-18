@@ -13,7 +13,7 @@ class GithubAuthController extends Controller
 {
     public function redirectToGithub()
     {
-        return Socialite::driver('github')->redirect();
+        return Socialite::driver('github')->stateless()->redirect();
     }
 
     public function handleGithubCallback(Request $request)
@@ -25,26 +25,38 @@ class GithubAuthController extends Controller
                 'all' => $request->all(),
             ]);
 
-            $githubUser = Socialite::driver('github')->stateless()->user(); // Try stateless mode
+            $githubUser = Socialite::driver('github')->stateless()->user();
             Log::info('GitHub User Data', (array)$githubUser);
 
-            $user = User::updateOrCreate(
-                ['github_id' => $githubUser->id],
-                [
+            $user = User::where('github_id', $githubUser->id)->first();
+
+            if (!$user) {
+                // New user: set role to 3
+                $user = User::create([
+                    'github_id' => $githubUser->id,
                     'name' => $githubUser->name,
                     'email' => $githubUser->email ?? ($githubUser->nickname . '@github.com'),
                     'github_token' => $githubUser->token,
                     'github_refresh_token' => $githubUser->refreshToken,
-                ]
-            );
+                    'role' => 3,
+                ]);
+            } else {
+                $user->update([
+                    'name' => $githubUser->name,
+                    'email' => $githubUser->email ?? ($githubUser->nickname . '@github.com'),
+                    'github_token' => $githubUser->token,
+                    'github_refresh_token' => $githubUser->refreshToken,
+                ]);
+            }
 
             Auth::login($user);
             $token = $user->createToken('auth_token')->plainTextToken;
 
             $userData = urlencode(json_encode([
                 'id' => $githubUser->id,
-                'name' => $githubUser->name,
-                'email' => $githubUser->email ?? ($githubUser->nickname . '@github.com'),
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role, 
             ]));
 
             return redirect("http://localhost:4200/login-callback?token={$token}&user={$userData}");
