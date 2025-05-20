@@ -85,4 +85,24 @@ class projectController extends Controller
         $task->save();
         return response()->json(['message' => 'Task assigned successfully']);
     }
+    
+    // edit func
+    public function editProject(Request $request, $projectId){
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+        $project = Project::findOrFail($projectId);
+        $project->update($request->all());
+        return response()->json(['message' => 'Project updated successfully']);
+    }
+
+    // delete func
+    public function deleteProject($projectId){
+        $project = Project::findOrFail($projectId);
+        $project->delete();
+        return response()->json(['message' => 'Project deleted successfully']);
+    }
+    
+    
 }
