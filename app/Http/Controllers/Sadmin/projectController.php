@@ -31,6 +31,11 @@ class projectController extends Controller
             200
         );
     }
+    public function show($id){
+        $project = Project::findOrFail($id);
+        $tasks = Task::where('project_id', $id)->get();
+        return response()->json(['project' => $project, 'tasks' => $tasks], 200);
+    }
 
     // create a new project
     public function createProject(Request $request)
