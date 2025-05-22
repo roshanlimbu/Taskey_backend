@@ -34,6 +34,16 @@ class projectController extends Controller
     public function show($id){
         $project = Project::findOrFail($id);
         $tasks = Task::where('project_id', $id)->get();
+        // Replace assigned_to with user name
+        $tasks = $tasks->map(function ($task) {
+            if ($task->assigned_to) {
+                $user = \App\Models\User::find($task->assigned_to);
+                $task->assigned_to = $user ? $user->name : null;
+            } else {
+                $task->assigned_to = null;
+            }
+            return $task;
+        });
         $memberIds = $project->members ? json_decode($project->members, true) : [];
         $members = !empty($memberIds)
             ? User::whereIn('id', $memberIds)->get()
