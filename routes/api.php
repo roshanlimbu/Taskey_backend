@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Sadmin\commonController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Sadmin\projectController;
 use App\Http\Controllers\Sadmin\TaskController;
@@ -21,4 +22,7 @@ Route::prefix('sadmin')->middleware('auth:api')->group(function () {
     Route::delete('/tasks/{taskId}', [TaskController::class, 'deleteTask']);
     Route::post('/tasks/{taskId}/assign', [TaskController::class, 'assignTask']);
     Route::post('/tasks/{taskId}/remove-user', [TaskController::class, 'removeUserFromTask']);
+
+
+    Route::get('/users', [commonController::class, 'getAllUsers']);
 });
