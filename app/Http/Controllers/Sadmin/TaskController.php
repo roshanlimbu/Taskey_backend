@@ -20,8 +20,12 @@ class TaskController extends Controller
             'description' => 'nullable|string',
         ]);
         $project = Project::findOrFail($projectId);
-        Log::info('Authenticated user role:', ['role' => $request->user()->role, 'user_id' => $request->user()->user_id]);
-        if ($request->user()->role != 1 || $request->user()->user_id!= $project->project_lead_id) {
+        Log::info('Add Task Debug', [
+            'user_id' => $request->user()->id,
+            'user_role' => $request->user()->role,
+            'project_lead_id' => $project->project_lead_id
+        ]);
+        if ($request->user()->role != 1 && $request->user()->id != $project->project_lead_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -35,6 +39,7 @@ class TaskController extends Controller
     }
 
 
+
     // edit task
     public function editTask(Request $request, $taskId)
     {
@@ -43,7 +48,7 @@ class TaskController extends Controller
             'description' => 'nullable|string',
         ]);
         $task = Task::findOrFail($taskId);
-        if ($request->user()->role != 1 || $request->user()->user_id != $task->project->project_lead_id) {
+        if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $task->update([
@@ -59,7 +64,7 @@ class TaskController extends Controller
             'status' => 'required|string|max:255',
         ]);
         $task = Task::findOrFail($taskId);
-        if ($request->user()->role != 1 || $request->user()->user_id != $task->project->project_lead_id) {
+        if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $task->update([
@@ -73,7 +78,7 @@ class TaskController extends Controller
     public function deleteTask(Request $request, $taskId)
     {
         $task = Task::findOrFail($taskId);
-        if ($request->user()->role != 1 || $request->user()->id != $task->project->project_lead_id) {
+        if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $task->delete();
@@ -87,22 +92,23 @@ class TaskController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
         $task = Task::findOrFail($taskId);
-        if ($request->user()->role != 1 || $request->user()->id != $task->project->project_lead_id) {
+        if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $task->update([
-            'user_id' => $request->user_id,
+            'assigned_to' => $request->user_id,
         ]);
+        return response()->json(['message' => 'Task assigned successfully'], 200);
     }
     // remove user from task
     public function removeUserFromTask(Request $request, $taskId)
     {
         $task = Task::findOrFail($taskId);
-        if ($request->user()->role != 1 || $request->user()->id != $task->project->project_lead_id) {
+        if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
         $task->update([
-            'user_id' => null,
+            'assigned_to' => null,
         ]);
         return response()->json(['message' => 'User removed from task successfully'], 200);
     }
