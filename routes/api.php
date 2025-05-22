@@ -10,11 +10,17 @@ Route::prefix('sadmin')->middleware('auth:api')->group(function () {
     Route::post('/projects', [projectController::class, 'createProject']);
     Route::get('/projects', [projectController::class, 'index']);
     Route::post('/projects/{projectId}/members', [projectController::class, 'addMembers']);
+    Route::post('/projects/{projectId}/remove-members', [projectController::class, 'removeMembers']);
     Route::post('/projects/{projectId}/tasks', [projectController::class, 'createTask']);
     Route::post('/tasks/{taskId}/assign', [projectController::class, 'assignTask']);
     Route::put('/projects/{projectId}', [projectController::class, 'editProject']);
     Route::delete('/projects/{projectId}', [projectController::class, 'deleteProject']);
     Route::get('/projects/{id}', [projectController::class, 'show']);
+    Route::post('/projects/{projectId}/assign-lead', [projectController::class, 'assignLead']);
+    Route::post('/projects/{projectId}/remove-lead', [projectController::class, 'removeLead']);
+
+
+
     // Task routes
     Route::post('/projects/{projectId}/tasks', [TaskController::class, 'addTask']);
     Route::put('/tasks/{taskId}', [TaskController::class, 'editTask']);

@@ -34,7 +34,18 @@ class projectController extends Controller
     public function show($id){
         $project = Project::findOrFail($id);
         $tasks = Task::where('project_id', $id)->get();
-        return response()->json(['project' => $project, 'tasks' => $tasks], 200);
+        $memberIds = $project->members ? json_decode($project->members, true) : [];
+        $members = !empty($memberIds)
+            ? User::whereIn('id', $memberIds)->get()
+            : collect(); // empty collection if no members
+        $projectLead = $project->project_lead_id ? User::find($project->project_lead_id) : null;
+        $projectLeadName = $projectLead ? $projectLead->name : null;
+        return response()->json([
+            'project' => $project,
+            'tasks'  => $tasks,
+            'members' => $members,
+            'project_lead_name' => $projectLeadName
+        ], 200);
     }
 
     // create a new project
@@ -59,8 +70,48 @@ class projectController extends Controller
             'member_ids.*' => 'exists:users,id',
         ]);
         $project = Project::findOrFail($projectId);
-        $project->members()->syncWithoutDetaching($request->member_ids);
+
+        // Get current members as array
+        $currentMembers = $project->members ? json_decode($project->members, true) : [];
+        // Merge and keep unique
+        $allMembers = array_unique(array_merge($currentMembers, $request->member_ids));
+        // Save back to the column
+        $project->members = json_encode($allMembers);
+        $project->save();
+
         return response()->json(['message' => 'Members added successfully']);
+    }
+    // remove members from a project
+    public function removeMembers(Request $request, $projectId)
+    {
+        $request->validate([
+            'member_ids' => 'required|array',
+            'member_ids.*' => 'exists:users,id',
+        ]);
+        $project = Project::findOrFail($projectId);
+        $currentMembers = $project->members ? json_decode($project->members, true) : [];
+        $project->members = json_encode(array_diff($currentMembers, $request->member_ids));
+        $project->save();
+        return response()->json(['message' => 'Members removed successfully']);
+    }
+    // assign lead of the prolject
+    public function assignLead(Request $request, $projectId)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+        ]);
+        $project = Project::findOrFail($projectId);
+        $project->project_lead_id = $request->user_id;
+        $project->save();
+        return response()->json(['message' => 'Lead assigned successfully']);
+    }
+    // remove lead of the project
+    public function removeLead(Request $request, $projectId)
+    {
+        $project = Project::findOrFail($projectId);
+        $project->project_lead_id = null;
+        $project->save();
+        return response()->json(['message' => 'Lead removed successfully']);
     }
 
     // create a task in a project
