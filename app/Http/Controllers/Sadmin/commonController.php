@@ -12,6 +12,9 @@ class commonController extends Controller
     public function getAllUsers()
     {
         $users = User::all();
-        return response()->json($users);
+        return response()->json([
+            'status' => 'success',
+            'users' => $users,
+        ]);
     }
 }
