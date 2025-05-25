@@ -12,6 +12,7 @@ class Project extends Model
     protected $fillable = [
         'name',
         'description',
+        'due_date',
     ];
 
     // Members: many-to-many with User

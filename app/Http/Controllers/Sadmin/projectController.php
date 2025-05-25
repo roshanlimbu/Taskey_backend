@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class projectController extends Controller
 {
@@ -157,8 +158,10 @@ class projectController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'due_date' => 'nullable|date',
+            'due_date' => 'nullable|string',
         ]);
+        // Log::info($request->all());
+        
         $project = Project::findOrFail($projectId);
         $project->update($request->all());
         return response()->json(['message' => 'Project updated successfully']);
