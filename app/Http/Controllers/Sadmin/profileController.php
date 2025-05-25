@@ -12,11 +12,11 @@ class profileController extends Controller
     public function updateProfile(Request $request) {
         $validated = $request->validate([
             'github_id' => 'required|exists:users,github_id',
-            'dev_role'=> 'required|string|max:255',
+            'dev_role' => 'string|max:255',
             'role' => 'required|integer|in:1,2,3',
         ]);
 
-        $user = User::find($validated['github_id']);
+        $user = User::where('github_id', $validated['github_id'])->first();
         $user->dev_role = $validated['dev_role'];
         $user->save();
 
