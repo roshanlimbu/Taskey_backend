@@ -27,6 +27,17 @@ class projectController extends Controller
     public function index()
     {
         $projects = Project::all();
+        // calculate task completed 
+        $projects = $projects->map(function ($project) {
+            $tasks = Task::where('project_id', $project->id)->get();
+            $completedTasks = $tasks->where('status', 'done')->count();
+            $totalTasks = $tasks->count();
+            $project->completed_tasks = $completedTasks;
+            $project->total_tasks = $totalTasks;
+            // Optionally, add percentage
+            $project->progress_percentage = $totalTasks > 0 ? round(($completedTasks / $totalTasks) * 100) : 0;
+            return $project;
+        });
         return response(
             ['projects' => $projects],
             200
