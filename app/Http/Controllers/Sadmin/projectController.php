@@ -157,6 +157,7 @@ class projectController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'due_date' => 'nullable|date',
         ]);
         $project = Project::findOrFail($projectId);
         $project->update($request->all());
