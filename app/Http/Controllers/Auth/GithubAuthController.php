@@ -38,6 +38,7 @@ class GithubAuthController extends Controller
                     'email' => $githubUser->email ?? ($githubUser->nickname . '@github.com'),
                     'github_token' => $githubUser->token,
                     'github_refresh_token' => $githubUser->refreshToken,
+                    'profile_image' => $githubUser->avatar,
                     'role' => 3,
                 ]);
             } else {
@@ -46,6 +47,7 @@ class GithubAuthController extends Controller
                     'email' => $githubUser->email ?? ($githubUser->nickname . '@github.com'),
                     'github_token' => $githubUser->token,
                     'github_refresh_token' => $githubUser->refreshToken,
+                    'profile_image' => $githubUser->avatar,
                 ]);
             }
 

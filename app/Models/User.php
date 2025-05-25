@@ -27,7 +27,8 @@ class User extends Authenticatable
         'email',
         'github_token',
         'github_refresh_token',
-        'role', // Added role to fillable
+        'role', 
+        'profile_image', 
     ];
 
     /**
