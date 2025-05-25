@@ -29,6 +29,7 @@ class User extends Authenticatable
         'github_refresh_token',
         'role', 
         'profile_image', 
+        'dev_role',
     ];
 
     /**
