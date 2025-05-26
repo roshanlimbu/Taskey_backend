@@ -8,6 +8,8 @@ use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\activities;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
@@ -34,6 +36,16 @@ class TaskController extends Controller
             'description' => $request->description,
             'project_id' => $projectId,
         ]);
+        // Log activity for new task
+        activities::create([
+            'user_id' => Auth::id(),
+            'project_id' => $projectId,
+            'task_id' => $task->id,
+            'type' => 'new_task',
+            'title' => $task->title,
+            'description' => 'Added a new task to the project',
+            'meta' => null,
+        ]);
         // DB::commit();
         return response()->json(['task' => $task], 200);
     }
@@ -51,9 +63,21 @@ class TaskController extends Controller
         if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
+        $oldTitle = $task->title;
+        $oldDescription = $task->description;
         $task->update([
             'title' => $request->title,
             'description' => $request->description,
+        ]);
+        // Log activity for editing task
+        activities::create([
+            'user_id' => Auth::id(),
+            'project_id' => $task->project_id,
+            'task_id' => $task->id,
+            'type' => 'edit_task',
+            'title' => $task->title,
+            'description' => 'Edited task',
+            'meta' => json_encode(['old_title' => $oldTitle, 'old_description' => $oldDescription]),
         ]);
         return response()->json(['task' => $task], 200);
     }
@@ -67,8 +91,19 @@ class TaskController extends Controller
         if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
+        $oldStatus = $task->status;
         $task->update([
             'status' => $request->status,
+        ]);
+        // Log activity for status update
+        activities::create([
+            'user_id' => Auth::id(),
+            'project_id' => $task->project_id,
+            'task_id' => $task->id,
+            'type' => 'status_update',
+            'title' => $task->title,
+            'description' => 'Changed status from "' . $oldStatus . '" to "' . $request->status . '"',
+            'meta' => json_encode(['old_status' => $oldStatus, 'new_status' => $request->status]),
         ]);
         return response()->json(['task' => $task], 200);
     }
