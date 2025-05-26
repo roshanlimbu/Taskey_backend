@@ -6,6 +6,7 @@ use App\Http\Controllers\Sadmin\projectController;
 use App\Http\Controllers\Sadmin\TaskController;
 use App\Http\Controllers\Sadmin\profileController;
 use App\Http\Controllers\Sadmin\activitiesController;
+use App\Http\Controllers\User\UserDashboardController;
 
 // Project routes
 Route::prefix('sadmin')->middleware('auth:api')->group(function () {
@@ -42,4 +43,7 @@ Route::prefix('sadmin')->middleware('auth:api')->group(function () {
 });
 Route::prefix('activities')->middleware('auth:api')->group(function () {
     Route::get('/recent', [activitiesController::class, 'activities']);
+});
+Route::prefix('user')->middleware('auth:api')->group(function () {
+    Route::get('/dashboard', [UserDashboardController::class, 'getUserDashboardData']);
 });

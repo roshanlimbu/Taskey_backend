@@ -13,18 +13,18 @@ class Project extends Model
         'name',
         'description',
         'due_date',
+        'members',
     ];
 
-    // Members: many-to-many with User
-    public function members()
-    {
-        return $this->belongsToMany(User::class, 'project_user', 'project_id', 'user_id');
-    }
 
     // Tasks: one-to-many
     public function tasks()
     {
         return $this->hasMany(Task::class);
+    }
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class);
     }
 
     // Project lead: belongsTo User
