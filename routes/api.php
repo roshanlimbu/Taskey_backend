@@ -25,15 +25,15 @@ Route::prefix('sadmin')->middleware('auth:api')->group(function () {
 
 
     // Task routes
-    Route::post('/projects/{projectId}/tasks', [TaskController::class, 'addTask']);
-    Route::put('/tasks/{taskId}', [TaskController::class, 'editTask']);
-    Route::put('/tasks/{taskId}/status', [TaskController::class, 'updateTaskStatus']);
-    Route::delete('/tasks/{taskId}', [TaskController::class, 'deleteTask']);
-    Route::post('/tasks/{taskId}/assign', [TaskController::class, 'assignTask']);
-    Route::post('/tasks/{taskId}/remove-user', [TaskController::class, 'removeUserFromTask']);
+    Route::post('/projects/{projectId}/tasks', [TaskController::class, 'addTask']); // add task to project
+    Route::put('/tasks/{taskId}', [TaskController::class, 'editTask']); // edit task
+    Route::put('/tasks/{taskId}/status', [TaskController::class, 'updateTaskStatus']); // update task status
+    Route::delete('/tasks/{taskId}', [TaskController::class, 'deleteTask']); // delete task
+    Route::post('/tasks/{taskId}/assign', [TaskController::class, 'assignTask']); // assign task to user
+    Route::post('/tasks/{taskId}/remove-user', [TaskController::class, 'removeUserFromTask']); // remove user from task
 
 
-    Route::get('/users', [commonController::class, 'getAllUsers']);
+    Route::get('/users', [commonController::class, 'getAllUsers']); // get all users
 
 
 
