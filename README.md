@@ -1,66 +1,95 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Taskey Backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Taskey Backend is a RESTful API built with Laravel, serving as the backend for the Taskey project management application. It provides endpoints for project, task, user, and activity management, with authentication and role-based access.
 
-## About Laravel
+## Features
+- User authentication (with GitHub OAuth)
+- Project CRUD and member management
+- Task CRUD and assignment
+- User profile management
+- Activity tracking
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requirements
+- PHP >= 8.2
+- Composer
+- Node.js & npm (for asset building)
+- MySQL or SQLite (or other supported DB)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Installation
+1. **Clone the repository:**
+   ```bash
+   git clone <repo-url>
+   cd Taskey_backend
+   ```
+2. **Install PHP dependencies:**
+   ```bash
+   composer install
+   ```
+3. **Install Node dependencies:**
+   ```bash
+   npm install
+   ```
+4. **Copy and configure environment:**
+   - Copy `.env.example` to `.env` and set your database and OAuth credentials.
+   - If `.env.example` is missing, create a `.env` file with standard Laravel environment variables (DB, APP_KEY, etc.).
+5. **Generate application key:**
+   ```bash
+   php artisan key:generate
+   ```
+6. **Run migrations:**
+   ```bash
+   php artisan migrate
+   ```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Running the Application
+- **Development server:**
+  ```bash
+  php artisan serve
+  ```
+- **Vite dev server (for assets):**
+  ```bash
+  npm run dev
+  ```
+- **All-in-one (with queue and logs):**
+  ```bash
+  composer run dev
+  ```
 
-## Learning Laravel
+## API Overview
+All API routes are prefixed with `/api` and require authentication (except for auth endpoints).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Main Endpoints (see `routes/api.php`):
+- **Projects:**
+  - `POST /api/sadmin/projects` - Create project
+  - `GET /api/sadmin/projects` - List projects
+  - `PUT /api/sadmin/projects/{id}` - Edit project
+  - `POST /api/sadmin/projects/{id}` - Delete project
+  - ...and more (add/remove members, assign lead, etc.)
+- **Tasks:**
+  - `POST /api/sadmin/projects/{projectId}/tasks` - Add task
+  - `PUT /api/sadmin/tasks/{taskId}` - Edit task
+  - `PUT /api/sadmin/tasks/{taskId}/status` - Update status
+  - `DELETE /api/sadmin/tasks/{taskId}` - Delete task
+- **Users:**
+  - `GET /api/sadmin/users` - List all users
+  - `PUT /api/sadmin/profile/update` - Update profile
+- **Activities:**
+  - `GET /api/activities/recent` - Recent activities
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+> For full details, see the `routes/api.php` file.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Project Structure
+- `app/Http/Controllers/` - Main controllers (Auth, Sadmin)
+- `app/Models/` - Eloquent models (User, Project, Task, Activities)
+- `routes/api.php` - API route definitions
+- `database/migrations/` - DB schema
+- `public/` - Public assets
 
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Testing
+- Run tests with:
+  ```bash
+  php artisan test
+  ```
 
 ## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced under the MIT license.
