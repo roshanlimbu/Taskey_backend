@@ -90,9 +90,9 @@ class TaskController extends Controller
             'status' => 'required|string|max:255',
         ]);
         $task = Task::findOrFail($taskId);
-        if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
-        }
+        // if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
+        //     return response()->json(['error' => 'Unauthorized'], 403);
+        // }
         $oldStatus = $task->status;
         $task->update([
             'status' => $request->status,
