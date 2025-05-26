@@ -58,6 +58,7 @@ class TaskController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'due_date' => 'nullable|date',
         ]);
         $task = Task::findOrFail($taskId);
         if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
@@ -68,6 +69,7 @@ class TaskController extends Controller
         $task->update([
             'title' => $request->title,
             'description' => $request->description,
+            'due_date' => $request->due_date,
         ]);
         // Log activity for editing task
         activities::create([

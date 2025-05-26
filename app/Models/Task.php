@@ -15,6 +15,7 @@ class Task extends Model
         'project_id',
         'assigned_to',
         'status',
+        'due_date',
     ];
 
     // Project relationship
