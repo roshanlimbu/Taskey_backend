@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Sadmin\projectController;
 use App\Http\Controllers\Sadmin\TaskController;
 use App\Http\Controllers\Sadmin\profileController;
+use App\Http\Controllers\Sadmin\activitiesController;
 
 // Project routes
 Route::prefix('sadmin')->middleware('auth:api')->group(function () {
@@ -32,10 +33,13 @@ Route::prefix('sadmin')->middleware('auth:api')->group(function () {
 
 
     Route::get('/users', [commonController::class, 'getAllUsers']);
-    
+
 
 
     Route::prefix('profile')->middleware('auth:api')->group(function () {
         Route::put('/update', [profileController::class, 'updateProfile']);
     });
+});
+Route::prefix('activities')->middleware('auth:api')->group(function () {
+    Route::get('/recent', [activitiesController::class, 'activities']);
 });
