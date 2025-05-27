@@ -6,6 +6,7 @@ use App\Http\Controllers\Sadmin\projectController;
 use App\Http\Controllers\Sadmin\TaskController;
 use App\Http\Controllers\Sadmin\profileController;
 use App\Http\Controllers\Sadmin\activitiesController;
+use App\Http\Controllers\Sadmin\NotificationController;
 use App\Http\Controllers\User\UserDashboardController;
 
 // Project routes
@@ -50,3 +51,6 @@ Route::put('/tasks/{taskId}/status', [TaskController::class, 'updateTaskStatus']
 Route::prefix('user')->middleware('auth:api')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'getUserDashboardData']);
 });
+
+Route::post('save-fcm-token', [NotificationController::class, 'saveFcmToken'])->middleware('auth:api'); // save fcm token for push nofifications
+Route::post('send-notification', [NotificationController::class, 'sendNotification'])->middleware('auth:api'); // send push notification
