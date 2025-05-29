@@ -10,34 +10,31 @@ use App\Models\fcm_tokens;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 
 class NotificationController extends Controller
 {
-    public function saveFcmToken(Request $request)
+    public function subscribe(Request $request)
     {
-
-        // $user = Auth::user();
-
         $request->validate([
-            'token' => 'required|string',
-            'device_id' => 'string|nullable',
-            'platform' => 'string|nullable',
-            'id' => 'required|exists:users,github_id',
+            'fcm_token' => 'required|string',
         ]);
-        $user_id = User::where('github_id', $request->id)->value('id');
 
-        fcm_tokens::updateOrCreate(
-            [
-                'user_id' => $user_id,
-                'token' => $request->token,
-                'device_id' => $request->device_id,
-                'platform' => $request->platform,
-            ]
+        $fcm_token = $request->fcm_token;
+        Log::info('reuest', [$request->all()]);
+
+        $result = DB::table('fcm_tokens')->updateOrInsert(
+            ['token' => $fcm_token],
+            ['user_id' => Auth::id()]
         );
 
-        return response()->json(['message' => 'FCM token saved successfully'], 200);
+        if ($result) {
+            return res(true, [], ['FCM token updated successfully']);
+        } else {
+            return res(false, [], ['Failed to update FCM token']);
+        }
     }
 
     public function sendNotification(Request $request)
@@ -71,7 +68,7 @@ class NotificationController extends Controller
         try {
             $messaging->send(CloudMessage::new()
                 ->withNotification(Notification::create($request->title, $request->body))
-                ->withTarget('token', $token));
+                ->toToken('token', $token));
         } catch (\Exception $e) {
             $errorDetails = [
                 'message' => $e->getMessage(),
