@@ -10,7 +10,7 @@ use App\Http\Controllers\Sadmin\NotificationController;
 use App\Http\Controllers\User\UserDashboardController;
 
 // Project routes
-Route::prefix('sadmin')->middleware('auth:api')->group(function () {
+Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
     Route::post('/projects', [projectController::class, 'createProject']);
     Route::get('/projects', [projectController::class, 'index']);
     Route::post('/projects/{projectId}/members', [projectController::class, 'addMembers']);
@@ -48,11 +48,11 @@ Route::prefix('activities')->middleware('auth:api')->group(function () {
 });
 
 
-Route::put('/tasks/{taskId}/status', [TaskController::class, 'updateTaskStatus'])->middleware('auth:api'); // update task status
+Route::put('/tasks/{taskId}/status', [TaskController::class, 'updateTaskStatus'])->middleware('auth:sanctum'); // update task status
 
 Route::prefix('user')->middleware('auth:api')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'getUserDashboardData']);
 });
 
-Route::post('subscribe', [NotificationController::class, 'subscribe'])->middleware('auth:api'); // save fcm token for push nofifications
-Route::post('send-notification', [NotificationController::class, 'sendNotification'])->middleware('auth:api'); // send push notification
+Route::post('subscribe', [NotificationController::class, 'subscribe'])->middleware('auth:sanctum'); // save fcm token for push nofifications
+Route::post('send-notification', [NotificationController::class, 'sendNotification'])->middleware('auth:sanctum'); // send push notification
