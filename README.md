@@ -93,3 +93,9 @@ All API routes are prefixed with `/api` and require authentication (except for a
 
 ## License
 This project is open-sourced under the MIT license.
+
+## Screenshots
+
+The Taskey UI (served by the frontend) looks like this:
+
+![Taskey Kanban and Dashboard](../Taskey_frontend/public/assets/image.png)
