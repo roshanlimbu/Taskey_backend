@@ -56,3 +56,7 @@ Route::prefix('user')->middleware('auth:api')->group(function () {
 
 Route::post('subscribe', [NotificationController::class, 'subscribe'])->middleware('auth:sanctum'); // save fcm token for push nofifications
 Route::post('send-notification', [NotificationController::class, 'sendNotification'])->middleware('auth:sanctum'); // send push notification
+
+Route::get('notifications', [NotificationController::class, 'getNotifications'])->middleware('auth:sanctum');
+Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->middleware('auth:sanctum');
+Route::delete('notifications/{id}', [NotificationController::class, 'deleteNotification'])->middleware('auth:sanctum');
