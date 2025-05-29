@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Sadmin;
 
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
 use App\Http\Controllers\Controller;
 use App\Models\fcm_tokens;
+use App\Models\Notifications;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,13 +15,7 @@ use Illuminate\Support\Facades\Log;
 
 class NotificationController extends Controller
 {
-    private $messaging;
 
-    public function __construct()
-    {
-        $factory = (new Factory)->withServiceAccount(env('FIREBASE_CREDENTIALS'));
-        $this->messaging = $factory->createMessaging();
-    }
 
     public function subscribe(Request $request)
     {
@@ -56,7 +50,7 @@ class NotificationController extends Controller
         $token = fcm_tokens::where('user_id', $user->id)->value('token');
 
         if (!$token) {
-            return res(false, [], ['No token found for user']);
+            return response()->json(['success' => false, 'data' => [], 'message' => ['No token found for user']]);
         }
 
         $message = CloudMessage::fromArray([
@@ -76,6 +70,11 @@ class NotificationController extends Controller
             $factory = (new Factory)->withServiceAccount(env('FIREBASE_CREDENTIALS'));
             $factory->createMessaging()->send($message);
             Log::info('FCM: Notification sent successfully to user ID ' . $request->user_id);
+            Notifications::create([
+                'user_id' => $request->user_id,
+                'title' => $request->title,
+                'body' => $request->body,
+            ]);
             return response()->json(['message' => 'Notification sent successfully']);
         } catch (\Kreait\Firebase\Exception\Messaging\AuthenticationError $e) {
             Log::error('FCM: Authentication error', [
@@ -95,4 +94,34 @@ class NotificationController extends Controller
             return response()->json(['message' => 'Failed to send notification', 'error' => $e->getMessage()], 500);
         }
     }
+    
+
+
+
+    public function getNotifications(Request $request)
+    {
+        if($request->read == 'false'){
+            $notifications = Notifications::where('user_id', Auth::id())->where('read', false)->get();
+            return res(true, $notifications, ['Notifications fetched successfully']);
+        }else{
+            $notifications = Notifications::where('user_id', Auth::id())->get();
+            return res(true, $notifications, ['Notifications fetched successfully']);
+        }
+    }
+
+    public function markAsRead(Request $request)
+    {
+        $notification = Notifications::find($request->id);
+        $notification->read = true;
+        $notification->save();
+        return res(true, [], ['Notification marked as read']);
+    }
+
+    public function deleteNotification(Request $request)
+    {
+        $notification = Notifications::find($request->id);
+        $notification->delete();
+        return res(true, [], ['Notification deleted successfully']);
+    }
+
 }
