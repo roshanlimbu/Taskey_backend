@@ -13,9 +13,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-
 class NotificationController extends Controller
 {
+    private $messaging;
+
+    public function __construct()
+    {
+        $factory = (new Factory)->withServiceAccount(env('FIREBASE_CREDENTIALS'));
+        $this->messaging = $factory->createMessaging();
+    }
+
     public function subscribe(Request $request)
     {
         $request->validate([
@@ -23,7 +30,7 @@ class NotificationController extends Controller
         ]);
 
         $fcm_token = $request->fcm_token;
-        Log::info('reuest', [$request->all()]);
+        Log::info('request', [$request->all()]);
 
         $result = DB::table('fcm_tokens')->updateOrInsert(
             ['token' => $fcm_token],
@@ -45,43 +52,47 @@ class NotificationController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $firebase = (new Factory)->withServiceAccount(config('services.firebase.credentials'));
-        $messaging = $firebase->createMessaging();
-
-        Log::info('Firebase connection initialized');
-
-        // Get the first token for the specific user
-        $token = fcm_tokens::where('user_id', $request->user_id)->value('token');
+        $user = User::find($request->user_id);
+        $token = fcm_tokens::where('user_id', $user->id)->value('token');
 
         if (!$token) {
-            Log::warning('No token found for user_id: ' . $request->user_id);
-            return response()->json(['message' => 'No token available for this user'], 400);
+            return res(false, [], ['No token found for user']);
         }
 
-        Log::info('Sending notification to user', [
-            'user_id' => $request->user_id,
-            'title' => $request->title,
-            'body' => $request->body,
+        $message = CloudMessage::fromArray([
             'token' => $token,
+            'notification' => [
+                'title' => $request->title,
+                'body' => $request->body,
+            ],
         ]);
 
         try {
-            $messaging->send(CloudMessage::new()
-                ->withNotification(Notification::create($request->title, $request->body))
-                ->toToken('token', $token));
+            Log::info('FCM: Attempting to send notification to user ID ' . $request->user_id, [
+                'token' => $token,
+                'title' => $request->title,
+                'body' => $request->body
+            ]);
+            $factory = (new Factory)->withServiceAccount(env('FIREBASE_CREDENTIALS'));
+            $factory->createMessaging()->send($message);
+            Log::info('FCM: Notification sent successfully to user ID ' . $request->user_id);
+            return response()->json(['message' => 'Notification sent successfully']);
+        } catch (\Kreait\Firebase\Exception\Messaging\AuthenticationError $e) {
+            Log::error('FCM: Authentication error', [
+                'error' => $e->getMessage(),
+                'user_id' => $request->user_id,
+                'token' => substr($token, 0, 10) . '...',
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Authentication error', 'error' => $e->getMessage()], 401);
         } catch (\Exception $e) {
-            $errorDetails = [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'code' => $e->getCode(),
-            ];
-            if ($e instanceof \GuzzleHttp\Exception\RequestException && method_exists($e, 'getResponse')) {
-                $errorDetails['response'] = $e->getResponse() ? $e->getResponse()->getBody()->getContents() : 'No response';
-            }
-            Log::error('Error sending notification', $errorDetails);
-            return response()->json(['message' => 'Failed to send notification'], 500);
+            Log::error('FCM: Failed to send notification', [
+                'error' => $e->getMessage(),
+                'user_id' => $request->user_id,
+                'token' => substr($token, 0, 10) . '...',
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['message' => 'Failed to send notification', 'error' => $e->getMessage()], 500);
         }
-
-        return response()->json(['message' => 'Notification sent successfully']);
     }
 }
