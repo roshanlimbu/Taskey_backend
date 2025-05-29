@@ -43,6 +43,8 @@ Route::prefix('sadmin')->middleware('auth:api')->group(function () {
 });
 Route::prefix('activities')->middleware('auth:api')->group(function () {
     Route::get('/recent', [activitiesController::class, 'activities']);
+    Route::get("/all", [activitiesController::class, 'getAllActivities']);
+    Route::delete("/delete/{id}", [activitiesController::class, 'deleteActivity']);
 });
 
 
