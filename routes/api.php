@@ -45,6 +45,8 @@ Route::prefix('activities')->middleware('auth:api')->group(function () {
     Route::get('/recent', [activitiesController::class, 'activities']);
     Route::get("/all", [activitiesController::class, 'getAllActivities']);
     Route::delete("/delete/{id}", [activitiesController::class, 'deleteActivity']);
+    Route::post('/comment', [activitiesController::class, 'commentOnActivity']);
+    Route::get('/comments/{id}', [activitiesController::class, 'getComments']);
 });
 
 
@@ -60,3 +62,4 @@ Route::post('send-notification', [NotificationController::class, 'sendNotificati
 Route::get('notifications', [NotificationController::class, 'getNotifications'])->middleware('auth:sanctum');
 Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->middleware('auth:sanctum');
 Route::delete('notifications/{id}', [NotificationController::class, 'deleteNotification'])->middleware('auth:sanctum');
+
