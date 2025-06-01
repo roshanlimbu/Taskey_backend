@@ -8,6 +8,9 @@ use App\Http\Controllers\Sadmin\profileController;
 use App\Http\Controllers\Sadmin\activitiesController;
 use App\Http\Controllers\Sadmin\NotificationController;
 use App\Http\Controllers\User\UserDashboardController;
+use App\Http\Controllers\Padmin\ProjectAdminDashboardController;
+use App\Http\Controllers\Sadmin\OpenAiController;
+
 
 // Project routes
 Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
@@ -22,6 +25,10 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
     Route::get('/projects/{id}', [projectController::class, 'show']);
     Route::post('/projects/{projectId}/assign-lead', [projectController::class, 'assignLead']);
     Route::post('/projects/{projectId}/remove-lead', [projectController::class, 'removeLead']);
+
+
+    // reports
+    Route::post('/reports/generate', [OpenAiController::class, 'prompt']);
 
 
 
@@ -70,3 +77,12 @@ Route::delete('notifications/{id}', [NotificationController::class, 'deleteNotif
 Route::get('/tasks/{taskId}/chat', [TaskController::class, 'getTaskChat'])->middleware('auth:sanctum');
 Route::post('/tasks/{taskId}/join-chat', [TaskController::class, 'joinTaskChat'])->middleware('auth:sanctum');
 
+Route::prefix('padmin')->middleware('auth:sanctum')->group(function () {
+    Route::get('/dashboard', [ProjectAdminDashboardController::class, 'index']);
+    Route::post('/tasks', [ProjectAdminDashboardController::class, 'addTask']);
+    Route::put('/tasks/{taskId}', [ProjectAdminDashboardController::class, 'updateTask']);
+    Route::delete('/tasks/{taskId}', [ProjectAdminDashboardController::class, 'deleteTask']);
+    Route::put('/tasks/status/update/{taskId}', [ProjectAdminDashboardController::class, 'updateTaskStatus']);
+    Route::post('/members', [ProjectAdminDashboardController::class, 'addMember']);
+    Route::delete('/members/{memberId}', [ProjectAdminDashboardController::class, 'deleteMember']);
+});
