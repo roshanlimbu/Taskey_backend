@@ -16,6 +16,11 @@ class Task extends Model
         'assigned_to',
         'status',
         'due_date',
+        'need_help',
+    ];
+
+    protected $casts = [
+        'need_help' => 'boolean',
     ];
 
     // Project relationship
@@ -28,5 +33,10 @@ class Task extends Model
     public function assignee()
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    public function chat()
+    {
+        return $this->hasOne(Chat::class);
     }
 }
