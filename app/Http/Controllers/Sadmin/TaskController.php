@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\activities;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Chat;
+use App\Models\ChatParticipant;
 
 class TaskController extends Controller
 {
@@ -35,6 +37,7 @@ class TaskController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'project_id' => $projectId,
+            'need_help' => $request->has('need_help') ? $request->boolean('need_help') : false,
         ]);
         // Log activity for new task
         activities::create([
@@ -70,6 +73,7 @@ class TaskController extends Controller
             'title' => $request->title,
             'description' => $request->description,
             'due_date' => $request->due_date,
+            'need_help' => $request->has('need_help') ? $request->boolean('need_help') : $task->need_help,
         ]);
         // Log activity for editing task
         activities::create([
@@ -110,7 +114,23 @@ class TaskController extends Controller
         return response()->json(['task' => $task], 200);
     }
 
-
+    // update need help status
+    public function updateNeedHelp(Request $request, $taskId)
+    {
+        $task = Task::findOrFail($taskId);
+        $task->update([
+            'need_help' => $request->need_help,
+        ]);
+        // If marking as need_help, create chat if not exists and add owner as participant
+        if ($request->need_help && !$task->chat) {
+            $chat = Chat::create(['task_id' => $task->id]);
+            ChatParticipant::create([
+                'chat_id' => $chat->id,
+                'user_id' => $task->assigned_to ?? $request->user()->id,
+            ]);
+        }
+        return response()->json(['task' => $task], 200);
+    }
     // delete task
     public function deleteTask(Request $request, $taskId)
     {
@@ -148,5 +168,41 @@ class TaskController extends Controller
             'assigned_to' => null,
         ]);
         return response()->json(['message' => 'User removed from task successfully'], 200);
+    }
+
+    // Get chat info for a task
+    public function getTaskChat($taskId)
+    {
+        $task = Task::findOrFail($taskId);
+        $chat = $task->chat;
+        if (!$chat) {
+            return response()->json(['error' => 'No chat for this task'], 404);
+        }
+        $messages = $chat->messages()->with('user')->orderBy('created_at')->get();
+        $participants = $chat->participants()->with('user')->get();
+        return response()->json([
+            'chat_id' => $chat->id,
+            'messages' => $messages,
+            'participants' => $participants,
+        ]);
+    }
+
+    // Join chat as helper
+    public function joinTaskChat(Request $request, $taskId)
+    {
+        $task = Task::findOrFail($taskId);
+        $chat = $task->chat;
+        if (!$chat) {
+            return response()->json(['error' => 'No chat for this task'], 404);
+        }
+        $userId = $request->user()->id;
+        $already = $chat->participants()->where('user_id', $userId)->exists();
+        if (!$already) {
+            ChatParticipant::create([
+                'chat_id' => $chat->id,
+                'user_id' => $userId,
+            ]);
+        }
+        return response()->json(['message' => 'Joined chat', 'chat_id' => $chat->id]);
     }
 }
