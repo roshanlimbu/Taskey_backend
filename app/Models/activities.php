@@ -27,4 +27,8 @@ class activities extends Model
     {
         return $this->belongsTo(Task::class);
     }
+    public function comments()
+    {
+        return $this->hasMany(Comment::class, 'activity_id');
+    }
 }
