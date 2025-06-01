@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\activities;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Comment;
 
 class activitiesController extends Controller
 {
@@ -13,7 +14,7 @@ class activitiesController extends Controller
 
     public function getAllActivities()
     {
-        $activities = activities::with('user')
+        $activities = activities::with(['user', 'comments.user'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -24,7 +25,7 @@ class activitiesController extends Controller
 
     public function activities()
     {
-        $activities = activities::with('user')
+        $activities = activities::with(['user', 'comments.user'])
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
@@ -58,13 +59,13 @@ class activitiesController extends Controller
             return res(false, [], $validator->errors()->all());
         }
 
-        $activity = activities::find($request->activity_id);
-        $activity->comments = json_encode([
-            'user_id' => Auth::user()->id,
+        $comment = Comment::create([
+            'activity_id' => $request->activity_id,
+            'user_id' => Auth::id(),
             'comment' => $request->comment,
         ]);
-        $activity->save();
-        return res(true, [], ['Comment added successfully']);
+
+        return res(true, $comment, ['Comment added successfully']);
     }
     public function getComments($id)
     {
