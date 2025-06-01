@@ -51,6 +51,10 @@ Route::prefix('activities')->middleware('auth:api')->group(function () {
 
 
 Route::put('/tasks/{taskId}/status', [TaskController::class, 'updateTaskStatus'])->middleware('auth:sanctum'); // update task status
+Route::put('/tasks/{taskId}/need-help', [TaskController::class, 'updateNeedHelp'])->middleware('auth:sanctum'); // update need help status
+
+
+
 
 Route::prefix('user')->middleware('auth:api')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'getUserDashboardData']);
@@ -62,4 +66,7 @@ Route::post('send-notification', [NotificationController::class, 'sendNotificati
 Route::get('notifications', [NotificationController::class, 'getNotifications'])->middleware('auth:sanctum');
 Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->middleware('auth:sanctum');
 Route::delete('notifications/{id}', [NotificationController::class, 'deleteNotification'])->middleware('auth:sanctum');
+
+Route::get('/tasks/{taskId}/chat', [TaskController::class, 'getTaskChat'])->middleware('auth:sanctum');
+Route::post('/tasks/{taskId}/join-chat', [TaskController::class, 'joinTaskChat'])->middleware('auth:sanctum');
 
