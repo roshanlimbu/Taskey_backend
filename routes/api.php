@@ -10,6 +10,8 @@ use App\Http\Controllers\Sadmin\NotificationController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\Padmin\ProjectAdminDashboardController;
 use App\Http\Controllers\Sadmin\OpenAiController;
+use App\Http\Controllers\Sadmin\ReportsController;
+
 
 
 // Project routes
@@ -29,6 +31,8 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
 
     // reports
     Route::post('/reports/generate', [OpenAiController::class, 'prompt']);
+    Route::get('/reports', [ReportsController::class, 'index']);
+    Route::get('/reports/{projectId}', [ReportsController::class, 'getReport']);
 
 
 

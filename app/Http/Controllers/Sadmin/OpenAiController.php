@@ -27,7 +27,7 @@ class OpenAiController extends Controller
         $maxTasks = 10;
         $taskList = "";
         foreach ($tasks->take($maxTasks) as $i => $task) {
-            $taskList .= "\n" . ($i+1) . ". **{$task->title}**\n   Description: {$task->description}\n   Status: {$task->status}";
+            $taskList .= "\n" . ($i + 1) . ". **{$task->title}**\n   Description: {$task->description}\n   Status: {$task->status}";
         }
         if ($tasks->count() > $maxTasks) {
             $taskList .= "\n...and more tasks not shown.";
