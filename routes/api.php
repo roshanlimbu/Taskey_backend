@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Sadmin\commonController;
+use App\Http\Controllers\Sadmin\UserVerificationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Sadmin\projectController;
 use App\Http\Controllers\Sadmin\TaskController;
@@ -44,7 +45,8 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
     Route::post('/tasks/{taskId}/remove-user', [TaskController::class, 'removeUserFromTask']); // remove user from task
 
 
-    Route::get('/users', [commonController::class, 'getAllUsers']); // get all users
+    Route::get('/verifiedUsers', [commonController::class, 'getVerifiedUser']); // get all verified users
+    Route::get("/users", [UserVerificationController::class, 'getAllUsers']); // get all users
 
 
 
