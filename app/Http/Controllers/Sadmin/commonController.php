@@ -9,9 +9,9 @@ class commonController extends Controller
 {
 
     //  get all users
-    public function getAllUsers()
+    public function getVerifiedUser()
     {
-        $users = User::all();
+        $users = User::all()->where('is_user_verified', '=', 1);
         return response()->json([
             'status' => 'success',
             'users' => $users,
