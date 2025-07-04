@@ -42,6 +42,7 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
     // status routes 
     Route::post("/status/create", [StatusController::class, 'store']); // create status
     Route::get("/status", [StatusController::class, 'index']); // get all statuses
+    Route::delete("/status/delete/{id}", [StatusController::class, 'destroy']); // delete status
 
     // Task routes
     Route::post('/projects/{projectId}/tasks', [TaskController::class, 'addTask']); // add task to project
