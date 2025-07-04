@@ -22,6 +22,7 @@ class TaskController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'status_id' => 'nullable|exists:status,id',
         ]);
         $project = Project::findOrFail($projectId);
         Log::info('Add Task Debug', [
@@ -33,9 +34,16 @@ class TaskController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        // If status_id is not provided, use the first id from status table
+        $statusId = $request->status_id;
+        if (!$statusId) {
+            $statusId = DB::table('status')->orderBy('id')->value('id');
+        }
+
         $task = Task::create([
             'title' => $request->title,
             'description' => $request->description,
+            'status_id' => $statusId,
             'project_id' => $projectId,
             'need_help' => $request->has('need_help') ? $request->boolean('need_help') : false,
         ]);
@@ -51,7 +59,6 @@ class TaskController extends Controller
             'comments' => [],
             'reply' => [],
         ]);
-        // DB::commit();
         return response()->json(['task' => $task], 200);
     }
 
