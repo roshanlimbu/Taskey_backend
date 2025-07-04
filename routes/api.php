@@ -98,3 +98,15 @@ Route::prefix('padmin')->middleware('auth:sanctum')->group(function () {
 Route::prefix('supersuperadmin')->middleware('auth:sanctum')->group(function () {
     Route::delete("/companies/{id}", [CompanyController::class, 'destroy']);
 });
+
+Route::prefix('company')->middleware('auth:sanctum')->group(function () {
+    Route::get('', [CompanyController::class, 'index']);
+    Route::post('/add', [CompanyController::class, 'store']);
+    Route::get('/details/{id}', [CompanyController::class, 'show']);
+    Route::put('/update/{id}', [CompanyController::class, 'update']);
+    Route::post('/assign-company-to-user', [CompanyController::class, 'assignCompanyToUser']);
+});
+
+
+
+Route::post("/user/verificationstatus", [commonController::class, 'getUserByGithubId']); // get user by github id
