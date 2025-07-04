@@ -48,6 +48,8 @@ class TaskController extends Controller
             'title' => $task->title,
             'description' => 'Added a new task to the project',
             'meta' => null,
+            'comments' => [],
+            'reply' => [],
         ]);
         // DB::commit();
         return response()->json(['task' => $task], 200);
@@ -84,6 +86,8 @@ class TaskController extends Controller
             'title' => $task->title,
             'description' => 'Edited task',
             'meta' => json_encode(['old_title' => $oldTitle, 'old_description' => $oldDescription]),
+            'comments' => [],
+            'reply' => [],
         ]);
         return response()->json(['task' => $task], 200);
     }
@@ -110,6 +114,8 @@ class TaskController extends Controller
             'title' => $task->title,
             'description' => 'Changed status from "' . $oldStatus . '" to "' . $request->status . '"',
             'meta' => json_encode(['old_status' => $oldStatus, 'new_status' => $request->status]),
+            'comments' => [],
+            'reply' => [],
         ]);
         return response()->json(['task' => $task], 200);
     }
