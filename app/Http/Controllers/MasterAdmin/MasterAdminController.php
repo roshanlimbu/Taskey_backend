@@ -88,6 +88,11 @@ class MasterAdminController extends Controller
                 'total_storage_used' => $this->getStorageUsed(),
                 'average_response_time' => $this->getAverageResponseTime()
             ];
+            // get all companies data like name, email, phone, address
+            $systemHealth['total_companies'] = DB::table('companies')->count();
+            $systemHealth['companies'] = DB::table('companies')->get(['name', 'email', 'phone', 'address']);
+
+
 
             return response()->json([
                 'status' => 'success',
