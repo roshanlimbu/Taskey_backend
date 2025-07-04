@@ -14,8 +14,7 @@ use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\Padmin\ProjectAdminDashboardController;
 use App\Http\Controllers\Sadmin\OpenAiController;
 use App\Http\Controllers\Sadmin\ReportsController;
-
-
+use App\Http\Controllers\Sadmin\StatusController;
 
 // Project routes
 Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
@@ -30,6 +29,8 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
     Route::get('/projects/{id}', [projectController::class, 'show']);
     Route::post('/projects/{projectId}/assign-lead', [projectController::class, 'assignLead']);
     Route::post('/projects/{projectId}/remove-lead', [projectController::class, 'removeLead']);
+    Route::get('/statuses', [projectController::class, 'getStatuses']);
+    Route::put('/tasks/{taskId}/status', [projectController::class, 'updateTaskStatus']);
 
 
     // reports
@@ -38,6 +39,9 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
     Route::get('/reports/{projectId}', [ReportsController::class, 'getReport']);
 
 
+    // status routes 
+    Route::post("/status/create", [StatusController::class, 'store']); // create status
+    Route::get("/status", [StatusController::class, 'index']); // get all statuses
 
     // Task routes
     Route::post('/projects/{projectId}/tasks', [TaskController::class, 'addTask']); // add task to project
