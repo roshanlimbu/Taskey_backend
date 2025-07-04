@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MasterAdmin\CompanyController;
+use App\Http\Controllers\MasterAdmin\MasterAdminController;
 use App\Http\Controllers\Sadmin\commonController;
 use App\Http\Controllers\Sadmin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -96,6 +97,7 @@ Route::prefix('padmin')->middleware('auth:sanctum')->group(function () {
 });
 
 Route::prefix('supersuperadmin')->middleware('auth:sanctum')->group(function () {
+    Route::get('dashboard-data', [MasterAdminController::class, 'getDashboardData']);
     Route::delete("/companies/{id}", [CompanyController::class, 'destroy']);
 });
 

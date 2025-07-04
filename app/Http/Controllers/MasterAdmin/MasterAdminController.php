@@ -22,34 +22,34 @@ class MasterAdminController extends Controller
             $totalUsers = User::count();
             $activeUsers = User::where('is_user_verified', true)->count();
             $newUsersThisMonth = User::whereMonth('created_at', now()->month)
-                                   ->whereYear('created_at', now()->year)
-                                   ->count();
-            
+                ->whereYear('created_at', now()->year)
+                ->count();
+
             // User distribution by role
             $usersByRole = User::select('role', DB::raw('count(*) as count'))
-                              ->groupBy('role')
-                              ->get()
-                              ->map(function ($item) {
-                                  $roleNames = [
-                                      0 => 'Master Admin',
-                                      1 => 'Super Admin',
-                                      2 => 'Admin',
-                                      3 => 'User'
-                                  ];
-                                  return [
-                                      'role' => $roleNames[$item->role] ?? 'Unknown',
-                                      'count' => $item->count
-                                  ];
-                              });
+                ->groupBy('role')
+                ->get()
+                ->map(function ($item) {
+                    $roleNames = [
+                        0 => 'Master Admin',
+                        1 => 'Super Admin',
+                        2 => 'Admin',
+                        3 => 'User'
+                    ];
+                    return [
+                        'role' => $roleNames[$item->role] ?? 'Unknown',
+                        'count' => $item->count
+                    ];
+                });
 
             // Project Statistics
             $totalProjects = Project::count();
-            $activeProjects = Project::whereHas('tasks', function($query) {
+            $activeProjects = Project::whereHas('tasks', function ($query) {
                 $query->whereNotIn('status', ['completed', 'cancelled']);
             })->count();
             $projectsThisMonth = Project::whereMonth('created_at', now()->month)
-                                       ->whereYear('created_at', now()->year)
-                                       ->count();
+                ->whereYear('created_at', now()->year)
+                ->count();
 
             // Task Statistics
             $totalTasks = Task::count();
@@ -57,8 +57,8 @@ class MasterAdminController extends Controller
             $pendingTasks = Task::where('status', 'pending')->count();
             $inProgressTasks = Task::where('status', 'in_progress')->count();
             $overdueTasks = Task::where('due_date', '<', now())
-                               ->whereNotIn('status', ['completed', 'cancelled'])
-                               ->count();
+                ->whereNotIn('status', ['completed', 'cancelled'])
+                ->count();
 
             // Growth Analytics (last 6 months)
             $growthData = [];
@@ -67,14 +67,14 @@ class MasterAdminController extends Controller
                 $growthData[] = [
                     'month' => $month->format('M Y'),
                     'users' => User::whereMonth('created_at', $month->month)
-                                  ->whereYear('created_at', $month->year)
-                                  ->count(),
+                        ->whereYear('created_at', $month->year)
+                        ->count(),
                     'projects' => Project::whereMonth('created_at', $month->month)
-                                        ->whereYear('created_at', $month->year)
-                                        ->count(),
+                        ->whereYear('created_at', $month->year)
+                        ->count(),
                     'tasks' => Task::whereMonth('created_at', $month->month)
-                                  ->whereYear('created_at', $month->year)
-                                  ->count()
+                        ->whereYear('created_at', $month->year)
+                        ->count()
                 ];
             }
 
@@ -145,16 +145,16 @@ class MasterAdminController extends Controller
             }
 
             if ($request->has('search') && $request->search !== '') {
-                $query->where(function($q) use ($request) {
+                $query->where(function ($q) use ($request) {
                     $q->where('name', 'like', '%' . $request->search . '%')
-                      ->orWhere('email', 'like', '%' . $request->search . '%');
+                        ->orWhere('email', 'like', '%' . $request->search . '%');
                 });
             }
 
             // Get users with pagination
             $users = $query->with(['projects', 'tasks'])
-                          ->orderBy('created_at', 'desc')
-                          ->paginate(20);
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
 
             // Add user statistics
             $users->getCollection()->transform(function ($user) {
@@ -209,7 +209,7 @@ class MasterAdminController extends Controller
             ]);
 
             $user = User::findOrFail($userId);
-            
+
             // Prevent demotion of the last master admin
             if ($user->isMasterAdmin() && $request->role != 0) {
                 $masterAdminCount = User::where('role', 0)->count();
