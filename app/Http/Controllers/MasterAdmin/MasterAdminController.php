@@ -90,7 +90,7 @@ class MasterAdminController extends Controller
             ];
             // get all companies data like name, email, phone, address
             $systemHealth['total_companies'] = DB::table('companies')->count();
-            $systemHealth['companies'] = DB::table('companies')->get(['name', 'email', 'phone', 'address']);
+            $systemHealth['companies'] = DB::table('companies')->get(['id', 'name', 'email', 'phone', 'address']);
 
 
 

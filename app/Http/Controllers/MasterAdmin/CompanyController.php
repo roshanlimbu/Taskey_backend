@@ -54,7 +54,19 @@ class CompanyController extends Controller
     public function show($id)
     {
         $company = Company::findOrFail($id);
-        return response()->json($company);
+        $users = User::where('company_id', $id)->get();
+        $projects = DB::table('projects')
+            ->where('company_id', $id)
+            ->get();
+        $tasks = DB::table('tasks')
+            ->whereIn('project_id', $projects->pluck('id'))
+            ->get();
+        return response()->json([
+            'company' => $company,
+            'users' => $users,
+            'projects' => $projects,
+            'tasks' => $tasks
+        ]);
     }
     public function update(Request $request, $id)
     {
