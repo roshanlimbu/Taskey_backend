@@ -45,7 +45,9 @@ class MasterAdminController extends Controller
             // Project Statistics
             $totalProjects = Project::count();
             $activeProjects = Project::whereHas('tasks', function ($query) {
-                $query->whereNotIn('status', ['completed', 'cancelled']);
+                $query->whereHas('status', function ($statusQuery) {
+                    $statusQuery->whereNotIn('name', ['done', 'cancelled']);
+                });
             })->count();
             $projectsThisMonth = Project::whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
@@ -53,11 +55,19 @@ class MasterAdminController extends Controller
 
             // Task Statistics
             $totalTasks = Task::count();
-            $completedTasks = Task::where('status', 'completed')->count();
-            $pendingTasks = Task::where('status', 'pending')->count();
-            $inProgressTasks = Task::where('status', 'in_progress')->count();
+            $completedTasks = Task::whereHas('status', function ($query) {
+                $query->where('name', 'done');
+            })->count();
+            $pendingTasks = Task::whereHas('status', function ($query) {
+                $query->where('name', 'pending');
+            })->count();
+            $inProgressTasks = Task::whereHas('status', function ($query) {
+                $query->where('name', 'in_progress');
+            })->count();
             $overdueTasks = Task::where('due_date', '<', now())
-                ->whereNotIn('status', ['completed', 'cancelled'])
+                ->whereHas('status', function ($query) {
+                    $query->whereNotIn('name', ['done', 'cancelled']);
+                })
                 ->count();
 
             // Growth Analytics (last 6 months)
@@ -157,7 +167,7 @@ class MasterAdminController extends Controller
             }
 
             // Get users with pagination
-            $users = $query->with(['projects', 'tasks'])
+            $users = $query->with(['projects', 'tasks.status'])
                 ->orderBy('created_at', 'desc')
                 ->paginate(20);
 
@@ -165,7 +175,9 @@ class MasterAdminController extends Controller
             $users->getCollection()->transform(function ($user) {
                 $user->projects_count = $user->projects->count();
                 $user->tasks_count = $user->tasks->count();
-                $user->completed_tasks_count = $user->tasks->where('status', 'completed')->count();
+                $user->completed_tasks_count = $user->tasks->filter(function ($task) {
+                    return $task->status && $task->status->name === 'done';
+                })->count();
                 unset($user->projects, $user->tasks); // Remove relations to reduce payload size
                 return $user;
             });
