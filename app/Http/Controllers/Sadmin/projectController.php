@@ -80,6 +80,7 @@ class projectController extends Controller
         $project = Project::create([
             'name' => $request->name,
             'description' => $request->description,
+            'company_id' => Auth::user()->company_id, // the user's company id
         ]);
         return response()->json(['project' => $project], 201);
     }
