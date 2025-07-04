@@ -14,6 +14,8 @@ class Project extends Model
         'description',
         'due_date',
         'members',
+        'project_lead_id',
+        'company_id',
     ];
 
 
@@ -31,5 +33,10 @@ class Project extends Model
     public function project_lead()
     {
         return $this->belongsTo(User::class, 'project_lead_id');
+    }
+    // Company: belongsTo Company
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }
