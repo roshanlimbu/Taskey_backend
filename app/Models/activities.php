@@ -13,8 +13,22 @@ class activities extends Model
         'type',
         'title',
         'description',
-        'meta'
+        'meta',
+        'comments',
+        'reply'
     ];
+
+    protected $casts = [
+        'comments' => 'array',
+        'reply' => 'array',
+        'meta' => 'array',
+    ];
+
+    protected $attributes = [
+        'comments' => '[]',
+        'reply' => '[]',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
