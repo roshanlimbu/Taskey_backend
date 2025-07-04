@@ -41,6 +41,7 @@ class GithubAuthController extends Controller
                     'profile_image' => $githubUser->avatar,
                     'role' => 3,
                     'dev_role' => 'user',
+                    'company_id' => null,
                 ]);
             } else {
                 $user->update([
@@ -62,6 +63,7 @@ class GithubAuthController extends Controller
                 'role' => $user->role, 
                 'profile_image' => $user->profile_image,
                 'dev_role' => $user->dev_role,
+                'company_id' => $user->company_id,
             ]));
 
             return redirect("http://localhost:4200/login-callback?token={$token}&user={$userData}");
