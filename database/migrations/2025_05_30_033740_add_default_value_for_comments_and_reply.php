@@ -6,25 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('activities', function (Blueprint $table) {
-            $table->json('comments')->default(json_encode([]))->change();
-            $table->json('reply')->default(json_encode([]))->change();
+            $table->json('comments')->nullable()->change();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('activities', function (Blueprint $table) {
-            $table->json('comments')->default(json_encode([]))->change();
-            $table->json('reply')->default(json_encode([]))->change();
+            $table->json('comments')->nullable()->change();
         });
     }
 };

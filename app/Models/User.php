@@ -12,6 +12,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     // Role constants
+    const ROLE_MASTER_ADMIN = 0;
     const ROLE_SUPER_ADMIN = 1;
     const ROLE_ADMIN = 2;
     const ROLE_USER = 3;
@@ -25,11 +26,14 @@ class User extends Authenticatable
         'github_id',
         'name',
         'email',
+        'password',
         'github_token',
         'github_refresh_token',
         'role', 
         'profile_image', 
         'dev_role',
+        'is_user_verified',
+        'email_verified_at',
     ];
 
     /**
@@ -54,6 +58,16 @@ class User extends Authenticatable
     ];
 
     /**
+     * Check if the user is a master admin (role 0).
+     *
+     * @return bool
+     */
+    public function isMasterAdmin()
+    {
+        return $this->role === self::ROLE_MASTER_ADMIN;
+    }
+
+    /**
      * Check if the user is a super admin.
      *
      * @return bool
@@ -74,6 +88,16 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user has admin privileges (master admin or super admin).
+     *
+     * @return bool
+     */
+    public function hasAdminPrivileges()
+    {
+        return $this->isMasterAdmin() || $this->isSuperAdmin();
+    }
+
+    /**
      * Check if the user is a regular user.
      *
      * @return bool
@@ -81,5 +105,21 @@ class User extends Authenticatable
     public function isUser()
     {
         return $this->role === self::ROLE_USER;
+    }
+
+    /**
+     * Get projects associated with this user
+     */
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id');
+    }
+
+    /**
+     * Get tasks assigned to this user
+     */
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_user', 'user_id', 'task_id');
     }
 }
