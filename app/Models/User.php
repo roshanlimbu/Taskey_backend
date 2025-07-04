@@ -29,7 +29,8 @@ class User extends Authenticatable
         'password',
         'github_token',
         'github_refresh_token',
-        'role', 
+        'role',
+        'company_id',
         'profile_image', 
         'dev_role',
         'is_user_verified',
@@ -121,5 +122,14 @@ class User extends Authenticatable
     public function tasks()
     {
         return $this->belongsToMany(Task::class, 'task_user', 'user_id', 'task_id');
+    }
+
+
+    /**
+     * Get the company associated with the user.
+     */
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 }
