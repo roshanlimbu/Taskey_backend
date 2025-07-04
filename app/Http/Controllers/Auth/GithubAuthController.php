@@ -64,6 +64,7 @@ class GithubAuthController extends Controller
                 'profile_image' => $user->profile_image,
                 'dev_role' => $user->dev_role,
                 'company_id' => $user->company_id,
+                'is_user_verified' => $user->is_user_verified,
             ]));
 
             return redirect("http://localhost:4200/login-callback?token={$token}&user={$userData}");
