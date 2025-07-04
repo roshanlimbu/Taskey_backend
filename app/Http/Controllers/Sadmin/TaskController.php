@@ -95,16 +95,20 @@ class TaskController extends Controller
     public function updateTaskStatus(Request $request, $taskId)
     {
         $request->validate([
-            'status' => 'required|string|max:255',
+            'status_id' => 'required|exists:status,id',
         ]);
-        $task = Task::findOrFail($taskId);
+        $task = Task::with('status')->findOrFail($taskId);
         // if ($request->user()->role != 1 && $request->user()->id != $task->project->project_lead_id) {
         //     return response()->json(['error' => 'Unauthorized'], 403);
         // }
-        $oldStatus = $task->status;
+        $oldStatus = $task->status ? $task->status->name : 'none';
         $task->update([
-            'status' => $request->status,
+            'status_id' => $request->status_id,
         ]);
+        // Reload task to get new status
+        $task = Task::with('status')->findOrFail($taskId);
+        $newStatus = $task->status ? $task->status->name : 'none';
+
         // Log activity for status update
         activities::create([
             'user_id' => Auth::id(),
@@ -112,8 +116,8 @@ class TaskController extends Controller
             'task_id' => $task->id,
             'type' => 'status_update',
             'title' => $task->title,
-            'description' => 'Changed status from "' . $oldStatus . '" to "' . $request->status . '"',
-            'meta' => json_encode(['old_status' => $oldStatus, 'new_status' => $request->status]),
+            'description' => 'Changed status from "' . $oldStatus . '" to "' . $newStatus . '"',
+            'meta' => json_encode(['old_status' => $oldStatus, 'new_status' => $newStatus]),
             'comments' => [],
             'reply' => [],
         ]);

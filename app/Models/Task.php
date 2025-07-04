@@ -14,7 +14,7 @@ class Task extends Model
         'description',
         'project_id',
         'assigned_to',
-        'status',
+        'status_id',
         'due_date',
         'need_help',
     ];
@@ -38,5 +38,11 @@ class Task extends Model
     public function chat()
     {
         return $this->hasOne(Chat::class);
+    }
+
+    // Status relationship
+    public function status()
+    {
+        return $this->belongsTo(Status::class);
     }
 }
