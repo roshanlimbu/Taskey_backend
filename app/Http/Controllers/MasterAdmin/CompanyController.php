@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CompanyController extends Controller
 {
@@ -103,5 +104,21 @@ class CompanyController extends Controller
 
 
         return response()->json(['message' => 'Company assigned to user successfully'], 200);
+    }
+
+
+    // company details
+    public function companyDetails($id)
+    {
+        $company = Company::findOrFail($id);
+        $users = User::where('company_id', $id)->get();
+        $projects = DB::table('projects')
+            ->where('company_id', $id)
+            ->get();
+        return response()->json([
+            'company' => $company,
+            'users' => $users,
+            'projects' => $projects
+        ]);
     }
 }
