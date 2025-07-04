@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MasterAdmin\CompanyController;
 use App\Http\Controllers\Sadmin\commonController;
 use App\Http\Controllers\Sadmin\UserController;
 use Illuminate\Support\Facades\Route;
@@ -51,16 +52,6 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
     Route::put("/users/update/{id}", [UserController::class, 'update']); // update the user
     Route::delete("/users/delete/{id}", [UserController::class, 'destroy']); // delete the user
 
-
-
-
-
-
-
-
-
-
-
     Route::prefix('profile')->middleware('auth:api')->group(function () {
         Route::put('/update', [profileController::class, 'updateProfile']);
     });
@@ -102,4 +93,8 @@ Route::prefix('padmin')->middleware('auth:sanctum')->group(function () {
     Route::put('/tasks/status/update/{taskId}', [ProjectAdminDashboardController::class, 'updateTaskStatus']);
     Route::post('/members', [ProjectAdminDashboardController::class, 'addMember']);
     Route::delete('/members/{memberId}', [ProjectAdminDashboardController::class, 'deleteMember']);
+});
+
+Route::prefix('supersuperadmin')->middleware('auth:sanctum')->group(function () {
+    Route::delete("/companies/{id}", [CompanyController::class, 'destroy']);
 });
