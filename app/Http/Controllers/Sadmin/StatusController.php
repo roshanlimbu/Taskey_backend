@@ -26,4 +26,16 @@ class StatusController extends Controller
 
         return response()->json(['status' => $status], 201);
     }
+
+
+    //delete function
+    public function destroy($id)
+    {
+        $status = Status::find($id);
+        if (!$status) {
+            return response()->json(['message' => 'Status not found'], 404);
+        }
+        $status->delete();
+        return response()->json(['message' => 'Status deleted successfully'], 200);
+    }
 }
