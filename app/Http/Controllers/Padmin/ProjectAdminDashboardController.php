@@ -81,11 +81,11 @@ class ProjectAdminDashboardController extends Controller
     public function updateTaskStatus(Request $request, $taskId)
     {
         $request->validate([
-            'status' => 'required|string|max:255',
+            'status_id' => 'required|exists:status,id',
         ]);
         $task = Task::findOrFail($taskId);
         $task->update([
-            'status' => $request->status,
+            'status_id' => $request->status_id,
         ]);
         return response()->json(['task' => $task], 200);
     }

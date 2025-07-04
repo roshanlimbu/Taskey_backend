@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Status;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -29,8 +30,10 @@ class projectController extends Controller
         $projects = Project::all();
         // calculate task completed 
         $projects = $projects->map(function ($project) {
-            $tasks = Task::where('project_id', $project->id)->get();
-            $completedTasks = $tasks->where('status', 'done')->count();
+            $tasks = Task::with('status')->where('project_id', $project->id)->get();
+            $completedTasks = $tasks->filter(function ($task) {
+                return $task->status && $task->status->name === 'done';
+            })->count();
             $totalTasks = $tasks->count();
             $project->completed_tasks = $completedTasks;
             $project->total_tasks = $totalTasks;
@@ -45,8 +48,8 @@ class projectController extends Controller
     }
     public function show($id){
         $project = Project::findOrFail($id);
-        $tasks = Task::where('project_id', $id)->get();
-        // Replace assigned_to with user name
+        $tasks = Task::with('status')->where('project_id', $id)->get();
+        // Replace assigned_to with user name and include status
         $tasks = $tasks->map(function ($task) {
             if ($task->assigned_to) {
                 $user = \App\Models\User::find($task->assigned_to);
@@ -143,11 +146,13 @@ class projectController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'status_id' => 'nullable|exists:status,id',
         ]);
         $project = Project::findOrFail($projectId);
         $task = $project->tasks()->create([
             'title' => $request->title,
             'description' => $request->description,
+            'status_id' => $request->status_id,
         ]);
         return response()->json(['task' => $task], 201);
     }
@@ -184,6 +189,27 @@ class projectController extends Controller
         $project = Project::findOrFail($projectId);
         $project->delete();
         return response()->json(['message' => 'Project deleted successfully']);
+    }
+
+    // update task status
+    public function updateTaskStatus(Request $request, $taskId)
+    {
+        $request->validate([
+            'status_id' => 'required|exists:status,id',
+        ]);
+
+        $task = Task::findOrFail($taskId);
+        $task->status_id = $request->status_id;
+        $task->save();
+
+        return response()->json(['message' => 'Task status updated successfully']);
+    }
+
+    // get all statuses
+    public function getStatuses()
+    {
+        $statuses = Status::all();
+        return response()->json(['statuses' => $statuses], 200);
     }
     
     
