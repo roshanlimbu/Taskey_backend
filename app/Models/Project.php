@@ -16,6 +16,7 @@ class Project extends Model
         'members',
         'project_lead_id',
         'company_id',
+        'repo_url',
     ];
 
 

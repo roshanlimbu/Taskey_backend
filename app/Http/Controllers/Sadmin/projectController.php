@@ -31,9 +31,10 @@ class projectController extends Controller
         // calculate task completed 
         $projects = $projects->map(function ($project) {
             $tasks = Task::with('status')->where('project_id', $project->id)->get();
-            $completedTasks = $tasks->filter(function ($task) {
-                return $task->status && $task->status->name === 'done';
-            })->count();
+            $completedStatus = Status::where('name', 'completed')->first();
+            $completedTasks = $completedStatus
+                ? $tasks->where('status_id', $completedStatus->id)->count()
+                : 0;
             $totalTasks = $tasks->count();
             $project->completed_tasks = $completedTasks;
             $project->total_tasks = $totalTasks;
@@ -79,11 +80,13 @@ class projectController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'repo_url' => 'nullable|url|max:255',
         ]);
         $project = Project::create([
             'name' => $request->name,
             'description' => $request->description,
             'company_id' => Auth::user()->company_id, // the user's company id
+            'repo_url' => $request->repo_url, // optional repo url
         ]);
         return response()->json(['project' => $project], 201);
     }
@@ -176,6 +179,7 @@ class projectController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|string',
+            'repo_url' => 'nullable|url|max:255',
         ]);
         // Log::info($request->all());
         
