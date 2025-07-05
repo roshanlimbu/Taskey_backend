@@ -45,4 +45,10 @@ class Task extends Model
     {
         return $this->belongsTo(Status::class);
     }
+
+    // get commit hashes
+    public function commitHashes()
+    {
+        return $this->hasMany(Task_commit_hash::class, 'task_id');
+    }
 }
