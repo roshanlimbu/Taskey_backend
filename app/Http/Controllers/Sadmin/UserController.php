@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Sadmin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    // get all users of the company
     public function getAllUsers()
     {
-        $users = User::all();
+
+        $user = Auth::user();
+        $users = User::where('company_id', $user->company_id)->get();
         return response()->json([
             'status' => 'success',
             'users' => $users,

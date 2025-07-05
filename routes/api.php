@@ -54,7 +54,7 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
 
     // user management
     Route::get('/verifiedUsers', [commonController::class, 'getVerifiedUser']); // get all verified users
-    Route::get("/users", [UserController::class, 'getAllUsers']); // get all users
+    Route::get("/users", [UserController::class, 'getAllUsers']); // get all users of that company
     Route::put("/users/update/{id}", [UserController::class, 'update']); // update the user
     Route::delete("/users/delete/{id}", [UserController::class, 'destroy']); // delete the user
 
