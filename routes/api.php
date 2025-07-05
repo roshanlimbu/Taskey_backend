@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommitHashController;
 use App\Http\Controllers\MasterAdmin\CompanyController;
 use App\Http\Controllers\MasterAdmin\MasterAdminController;
 use App\Http\Controllers\Sadmin\commonController;
@@ -116,4 +117,8 @@ Route::prefix('company')->middleware('auth:sanctum')->group(function () {
 
 
 
-Route::post("/user/verificationstatus", [commonController::class, 'getUserByGithubId']); // get user by github id
+Route::post("/user/verificationstatus", [commonController::class, 'getUserByGithubId']);
+Route::prefix("commit")->middleware('auth:sanctum')->group(function () {
+    Route::post('/add', [CommitHashController::class, 'add']);
+    Route::post('/getcommithash', [CommitHashController::class, 'getCommitHashesByTaskId']);
+});

@@ -28,4 +28,9 @@ class Task_commit_hash extends Model
     {
         return $value ? substr($value, 0, 7) : null; // returns first 7 characters of the commit hash
     }
+    // a task can have many commit hashes
+    public function taskCommitHashes()
+    {
+        return $this->hasMany(Task_commit_hash::class, 'task_id');
+    }
 }
