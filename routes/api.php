@@ -106,6 +106,8 @@ Route::prefix('padmin')->middleware('auth:sanctum')->group(function () {
 
 Route::prefix('supersuperadmin')->middleware('auth:sanctum')->group(function () {
     Route::get('dashboard-data', [MasterAdminController::class, 'getDashboardData']);
+    Route::get('company-owners-pending', [MasterAdminController::class, 'getCompanyOwnersPending']);
+    Route::put('company-owners/{userId}/toggle-verification', [MasterAdminController::class, 'toggleCompanyOwnerVerification']);
     Route::delete("/companies/{id}", [CompanyController::class, 'destroy']);
 });
 
@@ -113,6 +115,7 @@ Route::prefix('company')->middleware('auth:sanctum')->group(function () {
     Route::get('', [CompanyController::class, 'index']);
     Route::post('/add', [CompanyController::class, 'store']);
     Route::get('/details/{id}', [CompanyController::class, 'show']);
+    Route::get('/owner/{id}', [CompanyController::class, 'getCompanyOwner']);
     Route::put('/update/{id}', [CompanyController::class, 'update']);
     Route::post('/assign-company-to-user', [CompanyController::class, 'assignCompanyToUser']);
 });

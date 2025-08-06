@@ -13,6 +13,17 @@ use Carbon\Carbon;
 class MasterAdminController extends Controller
 {
     /**
+     * Get all company owners (role 2) who are not verified
+     */
+    public function getCompanyOwnersPending()
+    {
+        $owners = \App\Models\User::where('role', 2)
+            ->where('is_user_verified', false)
+            ->get(['id', 'name', 'email', 'profile_image', 'is_user_verified', 'role', 'company_id']);
+        return response()->json(['users' => $owners]);
+    }
+
+    /**
      * Get comprehensive dashboard data for master admin
      */
     public function getDashboardData()
@@ -100,9 +111,16 @@ class MasterAdminController extends Controller
             ];
             // get all companies data like name, email, phone, address
             $systemHealth['total_companies'] = DB::table('companies')->count();
-            $systemHealth['companies'] = DB::table('companies')->get(['id', 'name', 'email', 'phone', 'address']);
-
-
+            $companies = DB::table('companies')->get(['id', 'name', 'email', 'phone', 'address']);
+            $systemHealth['companies'] = $companies->map(function ($company) {
+                // Find the owner/admin user for this company (role 2 = Project Admin/Owner)
+                $owner = \App\Models\User::where('company_id', $company->id)
+                    ->where('role', 2)
+                    ->first(['id', 'name', 'email', 'profile_image', 'is_user_verified', 'role']);
+                $company = (array) $company;
+                $company['owner'] = $owner;
+                return $company;
+            });
 
             return response()->json([
                 'status' => 'success',
@@ -255,6 +273,32 @@ class MasterAdminController extends Controller
     }
 
     /**
+     * Toggle company owner verification status
+     */
+    public function toggleCompanyOwnerVerification($userId)
+    {
+        try {
+            $user = User::findOrFail($userId);
+
+            // Toggle the verification status
+            $user->is_user_verified = !$user->is_user_verified;
+            $user->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Company owner verification status updated successfully',
+                'is_verified' => $user->is_user_verified
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to update verification status',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Get system logs and activity
      */
     public function getSystemLogs()
@@ -301,9 +345,9 @@ class MasterAdminController extends Controller
     private function getDatabaseSize()
     {
         try {
-            $result = DB::select("SELECT 
-                ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS 'DB Size in MB' 
-                FROM information_schema.tables 
+            $result = DB::select("SELECT
+                ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS 'DB Size in MB'
+                FROM information_schema.tables
                 WHERE table_schema = DATABASE()");
             return $result[0]->{'DB Size in MB'} ?? 0;
         } catch (\Exception $e) {

@@ -39,16 +39,21 @@ class CompanyController extends Controller
 
         $company = Company::create($request->all());
 
-        // assign the company id to the authenticated user
+        // assign the company id to the authenticated user and set is_user_verified to false
         $user = Auth::user();
         if ($user instanceof \App\Models\User) {
             $user->company_id = $company->id;
+            $user->is_user_verified = false; // Require super-admin verification
             $user->save();
         } else {
             return response()->json(['error' => 'Authenticated user is invalid'], 500);
         }
 
-        return response()->json($company, 200);
+        // Return both company and updated user verification status
+        return response()->json([
+            'company' => $company,
+            'user' => $user,
+        ], 200);
     }
 
     public function show($id)
@@ -116,6 +121,30 @@ class CompanyController extends Controller
 
 
         return response()->json(['message' => 'Company assigned to user successfully'], 200);
+    }
+
+    /**
+     * Get company owner by company ID
+     */
+    public function getCompanyOwner($id)
+    {
+        $company = Company::find($id);
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        $owner = User::where('company_id', $id)
+            ->where('role', 2) // Role 2 = company owner
+            ->first(['id', 'name', 'email', 'profile_image', 'is_user_verified', 'role', 'company_id']);
+
+        if (!$owner) {
+            return response()->json(['error' => 'Company owner not found'], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'owner' => $owner
+        ]);
     }
 
 
