@@ -14,7 +14,13 @@ class activitiesController extends Controller
 
     public function getAllActivities()
     {
+        $user = Auth::user();
+
+        // Get activities only from projects that belong to the user's company
         $activities = activities::with(['user', 'comments.user'])
+            ->whereHas('project', function ($query) use ($user) {
+                $query->where('company_id', $user->company_id);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -25,7 +31,13 @@ class activitiesController extends Controller
 
     public function activities()
     {
+        $user = Auth::user();
+
+        // Get activities only from projects that belong to the user's company
         $activities = activities::with(['user', 'comments.user'])
+            ->whereHas('project', function ($query) use ($user) {
+                $query->where('company_id', $user->company_id);
+            })
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();
