@@ -13,7 +13,7 @@ class profileController extends Controller
         $validated = $request->validate([
             'github_id' => 'required|exists:users,github_id',
             'dev_role' => 'string|max:255',
-            'role' => 'required|integer|in:1,2,3',
+            'role' => 'required|integer|in:1,2,3', // Updated valid roles
         ]);
 
         $user = User::where('github_id', $validated['github_id'])->first();

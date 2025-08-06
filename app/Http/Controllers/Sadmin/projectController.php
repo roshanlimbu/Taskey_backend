@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
 
 class projectController extends Controller
 {
-    // middleware to ensure only super admin (role == 1)
+    // middleware to ensure only company owner (role == 1)
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -27,8 +27,9 @@ class projectController extends Controller
 
     public function index()
     {
-        $projects = Project::all();
-        // calculate task completed 
+        $user = Auth::user();
+        $projects = Project::where('company_id', $user->company_id)->get();
+        // calculate task completed
         $projects = $projects->map(function ($project) {
             $tasks = Task::with('status')->where('project_id', $project->id)->get();
             $completedStatus = Status::where('name', 'completed')->first();
@@ -172,7 +173,7 @@ class projectController extends Controller
         $task->save();
         return response()->json(['message' => 'Task assigned successfully']);
     }
-    
+
     // edit func
     public function editProject(Request $request, $projectId){
         $request->validate([
@@ -182,7 +183,7 @@ class projectController extends Controller
             'repo_url' => 'nullable|url|max:255',
         ]);
         // Log::info($request->all());
-        
+
         $project = Project::findOrFail($projectId);
         $project->update($request->all());
         return response()->json(['message' => 'Project updated successfully']);
@@ -215,6 +216,4 @@ class projectController extends Controller
         $statuses = Status::all();
         return response()->json(['statuses' => $statuses], 200);
     }
-    
-    
 }

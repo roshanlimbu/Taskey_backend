@@ -11,7 +11,13 @@ class ReportsController extends Controller
 {
     public function index()
     {
-        $reports = Reports::all();
+        $user = Auth::user();
+
+        // Get reports only from projects that belong to the user's company
+        $reports = Reports::whereHas('project', function ($query) use ($user) {
+            $query->where('company_id', $user->company_id);
+        })->get();
+
         return response()->json([
             'success' => true,
             'data' => $reports,
