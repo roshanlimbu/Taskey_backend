@@ -13,11 +13,11 @@ use Carbon\Carbon;
 class MasterAdminController extends Controller
 {
     /**
-     * Get all company owners (role 2) who are not verified
+     * Get all company owners (role 1) who are not verified
      */
     public function getCompanyOwnersPending()
     {
-        $owners = \App\Models\User::where('role', 2)
+        $owners = \App\Models\User::where('role', 1)
             ->where('is_user_verified', false)
             ->get(['id', 'name', 'email', 'profile_image', 'is_user_verified', 'role', 'company_id']);
         return response()->json(['users' => $owners]);
@@ -43,8 +43,8 @@ class MasterAdminController extends Controller
                 ->map(function ($item) {
                     $roleNames = [
                         0 => 'Master Admin',
-                        1 => 'Super Admin',
-                        2 => 'Admin',
+                    1 => 'Company Owner',
+                    2 => 'Project Lead',
                         3 => 'User'
                     ];
                     return [
@@ -113,9 +113,9 @@ class MasterAdminController extends Controller
             $systemHealth['total_companies'] = DB::table('companies')->count();
             $companies = DB::table('companies')->get(['id', 'name', 'email', 'phone', 'address']);
             $systemHealth['companies'] = $companies->map(function ($company) {
-                // Find the owner/admin user for this company (role 2 = Project Admin/Owner)
+                // Find the owner/admin user for this company (role 1 = Company Owner)
                 $owner = \App\Models\User::where('company_id', $company->id)
-                    ->where('role', 2)
+                    ->where('role', 1)
                     ->first(['id', 'name', 'email', 'profile_image', 'is_user_verified', 'role']);
                 $company = (array) $company;
                 $company['owner'] = $owner;
