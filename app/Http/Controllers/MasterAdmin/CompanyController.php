@@ -39,10 +39,11 @@ class CompanyController extends Controller
 
         $company = Company::create($request->all());
 
-        // assign the company id to the authenticated user and set is_user_verified to false
+        // assign the company id to the authenticated user and set role to 1 (Company Owner) and is_user_verified to false
         $user = Auth::user();
         if ($user instanceof \App\Models\User) {
             $user->company_id = $company->id;
+            $user->role = 1; // Company Owner role
             $user->is_user_verified = false; // Require super-admin verification
             $user->save();
         } else {
@@ -113,11 +114,14 @@ class CompanyController extends Controller
         $user = Auth::user();
         if ($user instanceof \App\Models\User) {
             $user->company_id = $company->id;
+            // Assign role 3 for employees joining existing companies
+            if ($user->role != 0) { // Don't change master admin role
+                $user->role = 3; // Employee role
+            }
             $user->save();
         } else {
             return response()->json(['error' => 'Authenticated user is invalid'], 500);
         }
-        $user->save();
 
 
         return response()->json(['message' => 'Company assigned to user successfully'], 200);
@@ -134,7 +138,7 @@ class CompanyController extends Controller
         }
 
         $owner = User::where('company_id', $id)
-            ->where('role', 2) // Role 2 = company owner
+            ->where('role', 1) // Role 1 = company owner
             ->first(['id', 'name', 'email', 'profile_image', 'is_user_verified', 'role', 'company_id']);
 
         if (!$owner) {
