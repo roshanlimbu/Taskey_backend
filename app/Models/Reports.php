@@ -13,4 +13,10 @@ class Reports extends Model
         'title',
         'report',
     ];
+
+    // Relationship to project
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
 }

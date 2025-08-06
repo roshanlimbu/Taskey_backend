@@ -13,8 +13,8 @@ class User extends Authenticatable
 
     // Role constants
     const ROLE_MASTER_ADMIN = 0;
-    const ROLE_SUPER_ADMIN = 1;
-    const ROLE_ADMIN = 2;
+    const ROLE_COMPANY_OWNER = 1;
+    const ROLE_PROJECT_LEAD = 2;
     const ROLE_USER = 3;
 
     /**
@@ -31,7 +31,7 @@ class User extends Authenticatable
         'github_refresh_token',
         'role',
         'company_id',
-        'profile_image', 
+        'profile_image',
         'dev_role',
         'is_user_verified',
         'email_verified_at',
@@ -69,33 +69,33 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if the user is a super admin.
+     * Check if the user is a company owner.
      *
      * @return bool
      */
-    public function isSuperAdmin()
+    public function isCompanyOwner()
     {
-        return $this->role === self::ROLE_SUPER_ADMIN;
+        return $this->role === self::ROLE_COMPANY_OWNER;
     }
 
     /**
-     * Check if the user is an admin.
+     * Check if the user is a project lead/admin.
      *
      * @return bool
      */
-    public function isAdmin()
+    public function isProjectLead()
     {
-        return $this->role === self::ROLE_ADMIN;
+        return $this->role === self::ROLE_PROJECT_LEAD;
     }
 
     /**
-     * Check if the user has admin privileges (master admin or super admin).
+     * Check if the user has admin access (master admin or company owner).
      *
      * @return bool
      */
-    public function hasAdminPrivileges()
+    public function hasAdminAccess()
     {
-        return $this->isMasterAdmin() || $this->isSuperAdmin();
+        return $this->isMasterAdmin() || $this->isCompanyOwner();
     }
 
     /**

@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->tinyInteger('role')->default(2)->after('email');
+            $table->tinyInteger('role')->default(3)->after('email'); // Default role 3 for regular users
         });
     }
 
