@@ -23,7 +23,7 @@ class OpenAiController extends Controller
         $project = Project::find($projectId);
         $projectName = $project->name ?? '';
         $projectDescription = $project->description ?? '';
-        $tasks = Task::where('project_id', $projectId)->get(['title', 'description', 'status']);
+        $tasks = Task::where('project_id', $projectId)->get(['title', 'description', 'status_id']);
         $maxTasks = 10;
         $taskList = "";
         foreach ($tasks->take($maxTasks) as $i => $task) {
