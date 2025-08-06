@@ -42,7 +42,10 @@ class commonController extends Controller
     //  get all users
     public function getVerifiedUser()
     {
-        $users = User::all()->where('is_user_verified', '=', 1);
+        $companyId = Auth::user()->company_id;
+        $users = User::where('company_id', $companyId)
+            ->where('is_user_verified', '=', 1)
+            ->get();
         return response()->json([
             'status' => 'success',
             'users' => $users,
