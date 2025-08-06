@@ -40,7 +40,7 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
     Route::get('/reports/{projectId}', [ReportsController::class, 'getReport']);
 
 
-    // status routes 
+    // status routes
     Route::post("/status/create", [StatusController::class, 'store']); // create status
     Route::get("/status", [StatusController::class, 'index']); // get all statuses
     Route::delete("/status/delete/{id}", [StatusController::class, 'destroy']); // delete status
@@ -55,7 +55,9 @@ Route::prefix('sadmin')->middleware('auth:sanctum')->group(function () {
 
     // user management
     Route::get('/verifiedUsers', [commonController::class, 'getVerifiedUser']); // get all verified users
-    Route::get("/users", [UserController::class, 'getAllUsers']); // get all users of that company
+    Route::get('/users', [UserController::class, 'getAllUsers']); // get all users of that company
+    Route::get('/companyUsers', [commonController::class, 'getCompanyUsers']);
+    Route::put('/users/{id}/verify', [commonController::class, 'verifyUser']);
     Route::put("/users/update/{id}", [UserController::class, 'update']); // update the user
     Route::delete("/users/delete/{id}", [UserController::class, 'destroy']); // delete the user
 
